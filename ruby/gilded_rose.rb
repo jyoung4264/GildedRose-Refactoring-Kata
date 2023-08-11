@@ -1,50 +1,63 @@
 class GildedRose
 
+  MAXIMUM_QUALITY = 50
+  MINIMUM_QUALITY = 0
+
   def initialize(items)
     @items = items
   end
 
   def ordinary_item(item)
-     item.quality -= 1 if item.quality > 0
+     item.quality -= 1
   end
 
   def aged_brie(item)
-     item.quality += 1 if item.quality < 50
+     item.quality += 1
   end
 
   def backstage_pass(item)
-    item.quality += 1 if item.quality < 50
-    if item.sell_in < 6
-      item.quality += 1 if item.quality < 50
+    case item.sell_in
+    when 0..5
+      item.quality += 3
+    when 6..10
+      item.quality += 2
+    when 11..Float::INFINITY
+      item.quality += 1
     end
-    if item.sell_in < 11
-      item.quality += 1 if item.quality < 50
-    end
+  end
+
+  def is_ordinary_item?(item)
+    item.name != "Aged Brie" and 
+    item.name != "Backstage passes to a TAFKAL80ETC concert" and 
+    item.name != "Sulfuras, Hand of Ragnaros"
+  end
+
+  def max_quality(item)
+    item.quality = MAXIMUM_QUALITY if item.quality > MAXIMUM_QUALITY
+  end
+
+  def min_quality(item)
+    item.quality = MINIMUM_QUALITY if item.quality < MINIMUM_QUALITY
   end
 
   def update_quality()
     @items.each do |item|
-      next if item.name.eql? "Sulfuras, Hand of Ragnaros"
 
-      
-      if item.name.eql? "Aged Brie"
-          aged_brie(item)
-      elsif item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
-          backstage_pass(item)
-      else item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        ordinary_item(item)
-      end
-      item.sell_in = item.sell_in - 1
+      next if item.name.eql? "Sulfuras, Hand of Ragnaros"
+          
+      aged_brie(item) if item.name.eql? "Aged Brie"
+      backstage_pass(item) if item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
+      ordinary_item(item) if is_ordinary_item?(item)
+
+      item.sell_in -= 1
       
       if item.sell_in < 0
-        if item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
-          item.quality = 0
-        elsif item.name.eql? "Aged Brie"
-          aged_brie(item)
-        else
-          ordinary_item(item)
-        end
+        item.quality = 0 if item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
+        aged_brie(item) if item.name.eql? "Aged Brie"
+        ordinary_item(item) if is_ordinary_item?(item)
       end
+      max_quality(item)
+      min_quality(item)
     end
   end
 end

@@ -44,7 +44,6 @@ describe GildedRose do
     it "matches expected output" do
       standard_output = File.open("texttests/ThirtyDays/stdout.gr").read()
       new_output = File.open("ruby/test_output.txt").read()
-      puts new_output
       expect(new_output).to eq(standard_output)
     end
   end
