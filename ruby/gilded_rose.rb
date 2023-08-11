@@ -26,10 +26,19 @@ class GildedRose
     end
   end
 
+  def conjured_item(item)
+    item.quality -= 2
+  end
+
   def is_ordinary_item?(item)
     item.name != "Aged Brie" and 
     item.name != "Backstage passes to a TAFKAL80ETC concert" and 
-    item.name != "Sulfuras, Hand of Ragnaros"
+    item.name != "Sulfuras, Hand of Ragnaros" and 
+    is_conjured_item?(item).eql? false
+  end
+
+  def is_conjured_item?(item)
+    item.name.downcase.include?("conjured")
   end
 
   def max_quality(item)
@@ -42,12 +51,13 @@ class GildedRose
 
   def update_quality()
     @items.each do |item|
-
+      # Legendary items do not change
       next if item.name.eql? "Sulfuras, Hand of Ragnaros"
           
       aged_brie(item) if item.name.eql? "Aged Brie"
       backstage_pass(item) if item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
       ordinary_item(item) if is_ordinary_item?(item)
+      conjured_item(item) if is_conjured_item?(item)
 
       item.sell_in -= 1
       
@@ -55,6 +65,7 @@ class GildedRose
         item.quality = 0 if item.name.eql? "Backstage passes to a TAFKAL80ETC concert"
         aged_brie(item) if item.name.eql? "Aged Brie"
         ordinary_item(item) if is_ordinary_item?(item)
+        conjured_item(item) if is_conjured_item?(item)
       end
       max_quality(item)
       min_quality(item)
